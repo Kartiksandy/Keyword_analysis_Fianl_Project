@@ -4,4 +4,4 @@ selenium==3.141.0
 plotly==5.3.1
 tldextract==3.1.2
 streamlit_tags
-protobuf
+protobuf==3.19.0
