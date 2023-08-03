@@ -85,10 +85,12 @@ def adScraper(numberOfTimes, listOfKeywords):
     my_bar = st.progress(0)
     resultDict = {}
 
-    chrome_bin = os.environ.get('GOOGLE_CHROME_BIN', None)
-    chrome_options = Options()
-    chrome_options.binary_location = chrome_bin
-    driver = webdriver.Chrome(executable_path="https://www.dropbox.com/scl/fi/wtlt0nleagk54d35mob4x/chromedriver.exe?rlkey=uvqlsw87816u4p0bf23emv35p&dl=1", options=chrome_options)
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.binary_locations = os.environ.gey("GOOGLE_CHROME_BIN")
+    chrome_options.add_argument("--headless")
+    chrome_option.add_argument("--disable--dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
     total_iterations = numberOfTimes * len(listOfKeywords)
     progress = 0
     for keyword in listOfKeywords:
