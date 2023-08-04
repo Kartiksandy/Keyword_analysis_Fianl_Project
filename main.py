@@ -10,6 +10,7 @@ import plotly.express as px
 from streamlit_tags import st_tags
 from selenium.webdriver.chrome.options import Options
 import os
+import sqlite3
 
 # Specify User Agent
 headers = {
@@ -79,6 +80,10 @@ def generateKeywordAdPercentage(df):
     groupedKeywordPercentage_df = pd.DataFrame(list(zip(df['Keyword'].unique().tolist(), keywordAdPercentage)), columns=['Keyword', 'Percentage'])
     groupedKeywordPercentage_df = groupedKeywordPercentage_df.sort_values(by=['Percentage'], ascending=False)
     return groupedKeywordPercentage_df
+    
+# Create a connection to the SQLite database
+conn = sqlite3.connect('ad_scraper.db')
+cursor = conn.cursor()
 
 def adScraper(numberOfTimes, listOfKeywords):
     st.subheader('Progress:')
@@ -196,8 +201,7 @@ def adScraper(numberOfTimes, listOfKeywords):
     st.success('Google Ads Scraping completed successfully.')
     return resultDict
 
-def jsonToDataFrame(resultDict, listOfKeywords, numberOfTimes):
-    resultList = []
+def jsonToDatabase(resultDict, listOfKeywords, numberOfTimes):
     for keyword in listOfKeywords:
         if (resultDict[keyword]["top performers"] != []):
             for company in resultDict[keyword]["top performers"]:
@@ -209,6 +213,15 @@ def jsonToDataFrame(resultDict, listOfKeywords, numberOfTimes):
                     if resultDict[keyword]["total bottom ads"] != 0:
                         bottomPercentage = round(resultDict[keyword][company]["bottom"] / resultDict[keyword]["total bottom ads"] * 100, 1)
 
+                    # Insert data into the database
+                    cursor.execute(
+                        "INSERT INTO scraped_data (keyword, company, absolute_top, top, bottom, top_percentage, bottom_percentage, keyword_percentage) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        (keyword, company, resultDict[keyword][company]["absolute-top"], resultDict[keyword][company]["top"], resultDict[keyword][company]["bottom"], topPercentage, bottomPercentage, round((resultDict[keyword]["total top ads"] + resultDict[keyword]["total bottom ads"]) / (numberOfTimes * 2) * 100, 1))
+                    )
+
+    # Commit changes and close the connection
+    conn.commit()
+    
                     resultList.append([
                         keyword,
                         company,
@@ -226,6 +239,11 @@ def jsonToDataFrame(resultDict, listOfKeywords, numberOfTimes):
 
     df = pd.DataFrame(resultList, columns=["Keyword", "Company", "absolute-top", "top", "bottom", "top(%)", "bottom(%)", "Keyword Ads Percentage(%)"])
     return df
+
+resultDict = adScraper(numberOfTimes, chosen_keywords)
+jsonToDatabase(resultDict, chosen_keywords, numberOfTimes)
+# Close the database connection
+conn.close()
 
 
 # Read the custom CSS file
