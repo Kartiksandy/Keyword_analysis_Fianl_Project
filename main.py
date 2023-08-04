@@ -98,8 +98,7 @@ def adScraper(numberOfTimes, listOfKeywords):
     driver = webdriver.Chrome(
         executable_path=os.environ.get("CHROMEDRIVER_PATH"),
         options=chrome_options,
-        service_args=["--verbose"],
-        timeout=20
+        service_args=["--verbose"]
     )
     total_iterations = numberOfTimes * len(listOfKeywords)
     progress = 0
