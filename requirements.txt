@@ -8,3 +8,4 @@ protobuf==3.19.0
 altair==4.1.0
 chromedriver_autoinstaller
 options
+urllib3
