@@ -221,7 +221,6 @@ def jsonToDatabase(resultDict, listOfKeywords, numberOfTimes):
 
     # Commit changes and close the connection
     conn.commit()
-    
                     resultList.append([
                         keyword,
                         company,
